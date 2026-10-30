@@ -2,18 +2,21 @@
 
 set -euo pipefail
 
-#Ensure user is logged in to Azure CLI
+# Ensure user is logged in to Azure CLI
 az account show &> /dev/null || { echo "Please log in using 'az login' first."; exit 1; }
 
-# Prompt the non-technical staff for input
-read -p "Enter project name: " ...
+# Initialize the variable so Bash doesn't throw an unbound error
+PROJECT_NAME=""
+
+# Prompt the non-technical staff for input (PROJECT_NAME is added back here)
+read -p "Enter project name: " PROJECT_NAME
 
 if [ -z "$PROJECT_NAME" ]; then
     echo "Error: Project name cannot be empty."
     exit 1
 fi
 
-#Set deployment variables
+# Set deployment variables
 LOCATION="southafricanorth"
 RG_NAME="${PROJECT_NAME}-RG"
 
@@ -27,15 +30,15 @@ echo ""
 echo "Deploying resources to $LOCATION..."
 echo "--------------------------------------------------"
 
-# 1. Create Resource Group
-echo "[1/3] Creating Resource Group: $RG_NAME..."
+# 1. Creating Resource Group
+echo "Creating Resource Group: $RG_NAME..."
 az group create \
     --name "$RG_NAME" \
     --location "$LOCATION" \
     --output none
 
 # 2. Create Storage Account
-echo "[2/3] Creating Storage Account: $STORAGE_NAME..."
+echo "Creating Storage Account: $STORAGE_NAME..."
 az storage account create \
     --name "$STORAGE_NAME" \
     --resource-group "$RG_NAME" \
@@ -44,7 +47,7 @@ az storage account create \
     --output none
 
 # 3. Create Virtual Network
-echo "[3/3] Creating Virtual Network: $VNET_NAME..."
+echo "Creating Virtual Network: $VNET_NAME..."
 az network vnet create \
     --name "$VNET_NAME" \
     --resource-group "$RG_NAME" \
@@ -53,11 +56,9 @@ az network vnet create \
     --output none
 
 # Display Success Message
-echo "=================================================="
 echo " SUCCESS: Environment deployed successfully!"
 echo "--------------------------------------------------"
 echo " Resource Group : $RG_NAME"
 echo " Storage Account: $STORAGE_NAME"
 echo " Virtual Network: $VNET_NAME"
 echo " Location       : $LOCATION"
-echo "=================================================="
